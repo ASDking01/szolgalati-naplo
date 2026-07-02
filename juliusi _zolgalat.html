@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szolgálati napló</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 10px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .day-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2d6cdf;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            position: sticky;
+            bottom: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<h2>📅 Júliusi szolgálati napló</h2>
+
+<div class="card">
+    <input type="text" id="nev-" placeholder="Név">
+    <input type="text" id="email-" placeholder="Email">
+    <input type="text" id="tel-" placeholder="Telefonszám">
+</div>
+
+<div id="days"></div>
+
+<button onclick="mentes()">💾 Mentés</button>
+
+<script>
+    const tbody = document.querySelector("#tabla tbody");
+
+    // 31 nap generálás
+    const days = document.getElementById("days");
+
+    for (let i = 1; i <= 31; i++) {
+
+        const div = document.createElement("div");
+        div.className = "day-card";
+
+        div.innerHTML = `
+        <div class="day-title">Nap ${i}</div>
+
+        <input type="time" id="kezdes_${i}" placeholder="Kezdés">
+        <input type="time" id="vege_${i}" placeholder="Vége">
+        <input type="text" id="rendszam_${i}" placeholder="Rendszám">
+    `;
+
+        days.appendChild(div);
+    }
+
+    function mentes() {
+
+        const adatok = [];
+
+        const nev = document.getElementById("nev-").value;
+        const email = document.getElementById("email-").value;
+        const tel = document.getElementById("tel-").value;
+
+        for (let i = 1; i <= 31; i++) {
+
+            const kezdes = document.getElementById("kezdes_" + i).value;
+            const vege = document.getElementById("vege_" + i).value;
+            const rendszam = document.getElementById("rendszam_" + i).value;
+
+            // csak ha van adat
+            if (kezdes || vege || rendszam) {
+                adatok.push({
+                    nev: nev,
+                    tel:tel,
+                    email:email,
+                    nap: i,
+                    kezdes: kezdes,
+                    vege: vege,
+                    rendszam: rendszam
+                });
+            }
+        }
+
+        console.log(adatok);
+
+        fetch("https://script.google.com/macros/s/AKfycbzOjVreRmkHKncDF-Kvm_O_5kF3GwR6AwEo_CZxN5uCAfb1bXLC6GCkDvnnjXNnaeKaaQ/exec", {
+            method: "POST",
+            mode: "no-cors",
+            body: JSON.stringify(adatok)
+        });
+
+        alert("Mentve!");
+    }
+    window.onload = async function () {
+
+        try {
+            const res = await fetch("https://script.google.com/macros/s/AKfycbzOjVreRmkHKncDF-Kvm_O_5kF3GwR6AwEo_CZxN5uCAfb1bXLC6GCkDvnnjXNnaeKaaQ/exec");
+            const data = await res.json();
+
+            data.forEach(item => {
+
+                document.getElementById("kezdes_" + item.nap).value = item.kezdes || "";
+                document.getElementById("vege_" + item.nap).value = item.vege || "";
+                document.getElementById("rendszam_" + item.nap).value = item.rendszam || "";
+
+            });
+
+            console.log("Betöltve:", data);
+
+        } catch (err) {
+            console.error("Betöltési hiba:", err);
+        }
+    };
+</script>
+
+</body>
+</html>
