@@ -65,6 +65,10 @@
 <body>
 
 <h2>📅 Júliusi szolgálati napló</h2>
+<h3>Kezdés vége rublikák: első elem óra második elem perc harmadik elem délelőtt(am) vagy délután(pm) <br>
+Pl: 12:30 am --> délelőtt 12:30, vagy 12:30 pm --> este 12 30 vagy 00:30
+ </h3>
+
 
 <div class="card">
     <input type="text" id="nev-" placeholder="Név">
@@ -76,24 +80,30 @@
 
 <button onclick="mentes()">💾 Mentés</button>
 
+
+
 <script>
     const tbody = document.querySelector("#tabla tbody");
-
+    const napok = ["Hétfő","Kedd","Szerda","Csütörtök", "Péntek", "Szombat", "Vasárnap"];
     // 31 nap generálás
     const days = document.getElementById("days");
-
     for (let i = 1; i <= 31; i++) {
 
+
         const div = document.createElement("div");
+       const y = napok[(2+i - 1) % 7];
         div.className = "day-card";
 
         div.innerHTML = `
-        <div class="day-title">Nap ${i}</div>
-
+        <div class="day-title" id="nap">Nap ${i} <label id="napNev">${y}</label></div>
+        <label>kezdés</label>
         <input type="time" id="kezdes_${i}" placeholder="Kezdés">
+        <label>vége</label>
         <input type="time" id="vege_${i}" placeholder="Vége">
         <input type="text" id="rendszam_${i}" placeholder="Rendszám">
-    `;
+
+    `
+        ;
 
         days.appendChild(div);
     }
@@ -114,11 +124,13 @@
 
             // csak ha van adat
             if (kezdes || vege || rendszam) {
+                const napNev = napok[(2 + i - 1) % 7];
                 adatok.push({
                     nev: nev,
                     tel:tel,
                     email:email,
                     nap: i,
+                    napnev: napNev,
                     kezdes: kezdes,
                     vege: vege,
                     rendszam: rendszam
